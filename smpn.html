@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cek Jalur SPMB SMPN DIY 2026</title>
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-hover: #1e3a8a;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background: var(--bg); color: var(--text); line-height: 1.5; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 2rem; }
+        header h1 { font-size: 1.8rem; color: var(--primary); margin-bottom: 0.5rem; }
+        header p { color: var(--text-muted); }
+        .card { background: var(--card); padding: 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1.2rem; }
+        label { display: block; font-weight: 600; margin-bottom: 0.4rem; font-size: 0.95rem; }
+        input, select, textarea { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; transition: 0.2s; }
+        input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1); }
+        .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .btn { background: var(--primary); color: white; padding: 0.85rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem; transition: 0.2s; width: 100%; }
+        .btn:hover { background: var(--primary-hover); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: var(--primary); color: white; }
+        .hidden { display: none; }
+        .result-box { margin-top: 1rem; padding: 1rem; border-radius: 8px; background: #f1f5f9; border-left: 4px solid var(--primary); }
+        .pathway { padding: 1rem; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 1rem; background: #fafafa; }
+        .pathway.eligible { border-color: var(--success); background: #f0fdf4; }
+        .pathway.ineligible { border-color: var(--border); opacity: 0.7; }
+        .tag { display: inline-block; padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 4px; font-weight: 600; }
+        .tag-success { background: #d1fae5; color: #065f46; }
+        .tag-fail { background: #fee2e2; color: #991b1b; }
+        .tag-info { background: #dbeafe; color: #1e40af; }
+        .timeline { margin-top: 0.5rem; font-size: 0.9rem; }
+        .timeline-item { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
+        .timeline-date { font-weight: 600; color: var(--primary); min-width: 100px; }
+        .footer-note { text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem; }
+        .progress-bar { height: 4px; background: var(--border); border-radius: 2px; margin-bottom: 1.5rem; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: 0.3s; }
+        @media (max-width: 600px) { .row { grid-template-columns: 1fr; } header h1 { font-size: 1.5rem; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>🎓 Cek Jalur SPMB SMPN DIY 2026</h1>
+        <p>Simulasi interaktif berdasarkan Juknis Kota, Sleman, Bantul & Kulon Progo</p>
+    </header>
+
+    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+    <!-- STEP 1: REGION & BASIC -->
+    <section id="step1" class="card">
+        <h2>📍 Langkah 1: Wilayah & Status KK</h2>
+        <div class="row">
+            <div class="form-group">
+                <label>Kabupaten/Kota Tujuan</label>
+                <select id="region">
+                    <option value="">Pilih Wilayah...</option>
+                    <option value="Bantul">Bantul</option>
+                    <option value="Sleman">Sleman</option>
+                    <option value="KulonProgo">Kulon Progo</option>
+                    <option value="Kota">Kota Yogyakarta</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Wilayah KK Saat Ini</label>
+                <select id="kkRegion">
+                    <option value="diy">DIY (Sama dengan Tujuan)</option>
+                    <option value="diy_lain">DIY (Beda Kabupaten)</option>
+                    <option value="non_diy">Luar DIY</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <label>Tanggal Terbit KK</label>
+                <input type="date" id="kkDate">
+            </div>
+            <div class="form-group">
+                <label>Status Anak dalam KK</label>
+                <select id="kkStatus">
+                    <option value="anak">Anak Kandung</option>
+                    <option value="cucu">Cucu</option>
+                    <option value="lain">Lainnya (Asuh/Wali)</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn" onclick="nextStep(2)">Lanjut →</button>
+    </section>
+
+    <!-- STEP 2: ACADEMIC & PATHWAY -->
+    <section id="step2" class="card hidden">
+        <h2>📊 Langkah 2: Akademik & Status Khusus</h2>
+        <div class="row">
+            <div class="form-group">
+                <label>Nilai Rapor (Rata-rata 5 Sem)</label>
+                <input type="number" id="rapor" min="0" max="100" placeholder="Contoh: 85">
+            </div>
+            <div class="form-group">
+                <label>Nilai TKA</label>
+                <input type="number" id="tka" min="0" max="100" placeholder="Contoh: 78">
+            </div>
+            <div class="form-group">
+                <label>Nilai TKAD / ASPD</label>
+                <input type="number" id="tkad" min="0" max="100" placeholder="Contoh: 82">
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <label>Status Ekonomi / Afirmasi</label>
+                <select id="affirmation">
+                    <option value="none">Tidak Ada</option>
+                    <option value="ksjps_dtksen">Terdaftar KSJPS/DTSEN/KJM</option>
+                    <option value="kkm">Memiliki KKM (Kulon Progo/Bantul)</option>
+                    <option value="disabilitas">Penyandang Disabilitas</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Status Mutasi Orang Tua</label>
+                <select id="mutasi">
+                    <option value="no">Tidak Ada</option>
+                    <option value="yes">Ada SK Mutasi (ASN/TNI/POLRI/BUMN)</option>
+                    <option value="guru">Anak Guru (SK Definitif)</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Tanggal SK Mutasi (jika ada)</label>
+            <input type="date" id="mutasiDate">
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <label>Prestasi Akademik/Non-Akademik</label>
+                <select id="prestasiLevel">
+                    <option value="none">Tidak Ada</option>
+                    <option value="nasional">Juara/Medali Nasional</option>
+                    <option value="provinsi">Juara/Medali Provinsi</option>
+                    <option value="kabupaten">Juara/Medali Kabupaten/Kota</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Jarak Rumah ke Sekolah Tujuan (estimasi km)</label>
+                <input type="number" id="distance" step="0.1" min="0" placeholder="Contoh: 0.4">
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group" id="kelurahanGroup">
+                <label>Kelurahan/Padukuhan Asal</label>
+                <input type="text" id="kelurahan" placeholder="Contoh: Banguntapan, Baturetno">
+            </div>
+            <div class="form-group">
+                <label>Apakah Kelurahan tersebut masuk zonasi SMP tujuan?</label>
+                <select id="zonasiMatch">
+                    <option value="unknown">Belum Tahu / Cek Manual</option>
+                    <option value="yes">Ya, Masuk Zonasi</option>
+                    <option value="no">Tidak / Belum Terdaftar</option>
+                </select>
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 1rem;">
+            <button class="btn btn-outline" onclick="nextStep(1)">← Kembali</button>
+            <button class="btn" onclick="calculate()">🔍 Cek Kelayakan Jalur</button>
+        </div>
+    </section>
+
+    <!-- STEP 3: RESULTS -->
+    <section id="step3" class="card hidden">
+        <h2>📋 Hasil Analisis Kelayakan</h2>
+        <div id="summaryScore" class="result-box"></div>
+        <div id="pathwaysContainer"></div>
+        <div id="timelineContainer" style="margin-top: 1.5rem;"></div>
+        <div style="margin-top: 1.5rem; display: flex; gap: 10px;">
+            <button class="btn btn-outline" onclick="nextStep(2)">← Edit Data</button>
+            <button class="btn" onclick="resetForm()">🔄 Mulai Ulang</button>
+        </div>
+    </section>
+
+    <div class="footer-note">
+        ⚠️ <strong>Disclaimer:</strong> Tool ini bersifat simulasi berdasarkan Juknis SPMB DIY Tahun Ajaran 2026/2027 yang tersedia. Keputusan akhir berada di tangan Panitia SPMB Dinas Pendidikan setempat. Selalu verifikasi ke laman resmi: <code>spmb.jogja.prov.go.id</code> atau website dinas masing-masing kabupaten/kota.
+    </div>
+</div>
+
+<script>
+    // STATE
+    let currentStep = 1;
+    const cutoffDate = new Date('2025-07-01');
+
+    // REGION CONFIGS
+    const config = {
+        Bantul: {
+            radiusLimit: 0.5,
+            formula: (r, tka, tkad) => (r * 0.2) + (tka * 0.5) + (tkad * 0.3),
+            dates: {
+                prestasiKhusus: '9-10 Juni 2026',
+                radius: '17-18 Juni 2026',
+                afirmasi: '17-18 Juni 2026',
+                mutasi: '17-18 Juni 2026',
+                prestasiUmum: '22-24 Juni 2026',
+                wilayah: '23-25 Juni 2026'
+            },
+            link: 'https://bantulkab.spmb.id',
+            affirmationTags: ['DTSEN', 'SIDAMESRA']
+        },
+        Sleman: {
+            radiusLimit: 1.2, // Varies 300m-1200m
+            formula: (r, tka, tkad) => (r * 0.2) + ((tka + tkad) * 0.8),
+            dates: {
+                prestasiKhusus: '9-10 Juni 2026',
+                radius: '17-19 Juni 2026',
+                afirmasi: '17-19 Juni 2026',
+                mutasi: '17-19 Juni 2026',
+                prestasiUmum: '23-24 Juni 2026',
+                wilayah: '23-25 Juni 2026'
+            },
+            link: 'https://sleman.spmb.id',
+            affirmationTags: ['KKM Sleman']
+        },
+        KulonProgo: {
+            radiusLimit: 1.0,
+            formula: (r, tka, tkad) => (r * 0.2) + ((tka + tkad) * 0.8),
+            dates: {
+                radius: '22-24 Juni 2026',
+                afirmasi: '22-24 Juni 2026',
+                mutasi: '22-24 Juni 2026',
+                prestasi: '22-27 Juni 2026',
+                wilayah: '25-30 Juni 2026'
+            },
+            link: 'https://kulonprogo.spmb.id',
+            affirmationTags: ['DTSEN']
+        },
+        Kota: {
+            radiusLimit: 0.5,
+            formula: (r, tka, tkad) => ((tka + tkad) * 0.9) + (r * 0.6 * 0.1),
+            dates: {
+                radius: '17-18 Juni 2026',
+                afirmasi: '17-18 Juni 2026',
+                prestasi: '22-24 Juni 2026',
+                mutasi: '22-24 Juni 2026',
+                wilayah: '29 Juni - 1 Juli 2026'
+            },
+            link: 'https://yogya.spmb.id',
+            affirmationTags: ['KSJPS']
+        }
+    };
+
+    // UI LOGIC
+    function nextStep(step) {
+        document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+        document.getElementById(`step${step}`).classList.remove('hidden');
+        currentStep = step;
+        document.getElementById('progress').style.width = `${step * 33}%`;
+    }
+
+    function resetForm() {
+        document.querySelectorAll('input, select').forEach(el => {
+            if(el.type === 'date' || el.type === 'number') el.value = '';
+            else if(el.tagName === 'SELECT') el.selectedIndex = 0;
+        });
+        nextStep(1);
+    }
+
+    // CORE CALCULATOR
+    function calculate() {
+        const region = document.getElementById('region').value;
+        if(!region) { alert('Pilih Kabupaten/Kota tujuan terlebih dahulu.'); return; }
+
+        const cc = config[region];
+        const rapor = parseFloat(document.getElementById('rapor').value) || 0;
+        const tka = parseFloat(document.getElementById('tka').value) || 0;
+        const tkad = parseFloat(document.getElementById('tkad').value) || 0;
+        const kkDate = document.getElementById('kkDate').value ? new Date(document.getElementById('kkDate').value) : null;
+        const kkRegion = document.getElementById('kkRegion').value;
+        const kkStatus = document.getElementById('kkStatus').value;
+        const distance = parseFloat(document.getElementById('distance').value) || 99;
+        const affirmation = document.getElementById('affirmation').value;
+        const mutasi = document.getElementById('mutasi').value;
+        const mutasiDate = document.getElementById('mutasiDate').value ? new Date(document.getElementById('mutasiDate').value) : null;
+        const prestasi = document.getElementById('prestasiLevel').value;
+        const zonasi = document.getElementById('zonasiMatch').value;
+
+        // Calculate Score
+        const nilaiGabungan = cc.formula(rapor, tka, tkad).toFixed(2);
+        
+        // KK Duration Check (Min 1 year before July 1, 2025 or local cutoff)
+        const oneYearAgo = new Date('2025-07-01');
+        const kkValid = kkDate && kkDate <= oneYearAgo;
+        const kkDiyValid = (kkRegion === 'diy' || kkRegion === 'diy_lain');
+
+        // Pathway Evaluation
+        const pathways = [];
+
+        // 1. DOMISILI RADIUS
+        let rEligible = true, rNotes = [];
+        if(!kkDiyValid) { rEligible = false; rNotes.push('KK harus di wilayah DIY'); }
+        if(!kkValid) { rEligible = false; rNotes.push('KK terbit < 1 tahun sebelum 1 Juli 2025'); }
+        if(distance > cc.radiusLimit) { rEligible = false; rNotes.push(`Jarak > ${cc.radiusLimit} km`); }
+        if(kkStatus !== 'anak') { rEligible = false; rNotes.push('Status di KK bukan Anak/Cucu'); }
+        pathways.push({
+            name: 'Jalur Domisili Radius',
+            eligible: rEligible,
+            notes: rNotes.length ? rNotes.join('; ') : 'Memenuhi syarat jarak & administrasi KK.',
+            date: cc.dates.radius,
+            link: cc.link
+        });
+
+        // 2. DOMISILI WILAYAH
+        let wEligible = true, wNotes = [];
+        if(!kkDiyValid) { wEligible = false; wNotes.push('KK harus di wilayah DIY'); }
+        if(!kkValid) { wEligible = false; wNotes.push('KK terbit < 1 tahun sebelum 1 Juli 2025'); }
+        if(zonasi === 'no') { wEligible = false; wNotes.push('Kelurahan tidak masuk zonasi sekolah tujuan'); }
+        if(zonasi === 'unknown') { wNotes.push('⚠️ Cek tabel zonasi resmi dinas. Jika kuota radius belum penuh, bisa masuk.'); }
+        pathways.push({
+            name: 'Jalur Domisili Wilayah/Zonasi',
+            eligible: wEligible,
+            notes: wNotes.join('; ') || 'Memenuhi syarat administrasi KK.',
+            date: cc.dates.wilayah,
+            link: cc.link
+        });
+
+        // 3. AFIRMASI
+        let aEligible = true, aNotes = [];
+        if(affirmation === 'none') { aEligible = false; aNotes.push('Tidak terdaftar dalam data afirmasi (KSJPS/DTSEN/KKM/Disabilitas)'); }
+        if(affirmation === 'disabilitas') { aNotes.push('Wajib bawa surat asesmen dokter/psikolog HIMPSI.'); }
+        if(affirmation === 'ksjps_dtksen' || affirmation === 'kkm') { aNotes.push(`Pastikan nama terdaftar di database ${cc.affirmationTags[0]}.`); }
+        pathways.push({
+            name: 'Jalur Afirmasi (Miskin/Disabilitas)',
+            eligible: aEligible,
+            notes: aNotes.join('; ') || 'Memenuhi syarat afirmasi.',
+            date: cc.dates.afirmasi,
+            link: cc.link
+        });
+
+        // 4. MUTASI
+        let mEligible = true, mNotes = [];
+        if(mutasi === 'no') { mEligible = false; mNotes.push('Tidak memiliki SK Mutasi/SK Guru.'); }
+        if(mutasi !== 'no' && mutasiDate) {
+            if(mutasiDate > new Date('2025-07-01')) { mEligible = false; mNotes.push('SK Mutasi terbit > 1 tahun sebelum Juli 2025'); }
+        }
+        pathways.push({
+            name: 'Jalur Mutasi (Ortu/Guru)',
+            eligible: mEligible,
+            notes: mNotes.join('; ') || 'SK Mutasi/SK Guru valid & memenuhi batas waktu.',
+            date: cc.dates.mutasi,
+            link: cc.link
+        });
+
+        // 5. PRESTASI
+        let pEligible = true, pNotes = [];
+        if(prestasi === 'none') { pEligible = false; pNotes.push('Tidak melampirkan sertifikat prestasi.'); }
+        if(prestasi !== 'none') { pNotes.push(`Prestasi tingkat ${prestasi}. Nilai akan ditambahkan sesuai bobot juknis.`); }
+        if(region === 'Kota' && prestasi === 'nasional') { pNotes += ' 🏆 Peluang diterima langsung tinggi (Jalur Khusus).'; }
+        pathways.push({
+            name: 'Jalur Prestasi (Akademik/Non-Akademik)',
+            eligible: pEligible,
+            notes: pNotes.join('; '),
+            date: cc.dates.prestasiKhusus || cc.dates.prestasiUmum,
+            link: cc.link
+        });
+
+        // RENDER RESULTS
+        document.getElementById('summaryScore').innerHTML = `
+            <strong>📐 Perhitungan Nilai Gabungan (${region}):</strong> ${nilaiGabungan}<br>
+            <small>Formula: ${region === 'Bantul' ? '(Rapor×20%) + (TKA×50%) + (TKAD×30%)' : region === 'Kota' ? '((TKA+TKAD)×90%) + (Rapor×0.6×10%)' : '(Rapor×20%) + ((TKA+TKAD)×80%)'}</small>
+        `;
+
+        const pContainer = document.getElementById('pathwaysContainer');
+        pContainer.innerHTML = '';
+        let timelineHTML = '<h3>📅 Jadwal & Lokasi Kegiatan (2026)</h3>';
+        
+        pathways.forEach(p => {
+            const statusTag = p.eligible ? '<span class="tag tag-success">✅ BERKUALIFIKASI</span>' : '<span class="tag tag-fail">❌ TIDAK MEMENUHI</span>';
+            pContainer.innerHTML += `
+                <div class="pathway ${p.eligible ? 'eligible' : 'ineligible'}">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                        <strong>${p.name}</strong>
+                        ${statusTag}
+                    </div>
+                    <div style="font-size:0.9rem; color:#475569;">${p.notes}</div>
+                    <div style="margin-top:0.5rem; font-size:0.85rem;">📍 <strong>Daftar di:</strong> <a href="${p.link}" target="_blank" style="color:var(--primary)">${p.link}</a></div>
+                </div>
+            `;
+
+            // Timeline Generator
+            if(p.eligible) {
+                timelineHTML += `
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-date">${p.date}</div>
+                            <div>📝 Pendaftaran Online ${p.name} & Verifikasi Berkas</div>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        timelineHTML += `
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-date">Juli 2026</div>
+                    <div>📢 Pengumuman Hasil Seleksi & Daftar Ulang (sesuaikan dengan pengumuman resmi dinas)</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">13 Juli 2026</div>
+                    <div>🎒 Masa Pengenalan Lingkungan Sekolah (MPLS)</div>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('timelineContainer').innerHTML = timelineHTML;
+        nextStep(3);
+    }
+</script>
+</body>
+</html>
